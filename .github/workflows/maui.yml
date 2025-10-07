@@ -19,7 +19,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Restore NuGet packages first
+      # Restore NuGet dependencies
       - name: Restore dependencies
         run: dotnet restore
         env:
@@ -34,23 +34,21 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      # Restore MAUI workloads if cached
-      - name: Restore MAUI workloads cache
-        id: maui-cache
+      # Restore MAUI workloads (installeer automatisch benodigde workloads)
+      - name: Restore MAUI workloads
+        run: dotnet workload restore
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_NOLOGO: true
+
+      # Cache MAUI workloads
+      - name: Cache MAUI workloads
         uses: actions/cache@v3
         with:
           path: ~/.dotnet/workloads
           key: maui-workloads-${{ runner.os }}-${{ hashFiles('global.json') }}
           restore-keys: |
             maui-workloads-${{ runner.os }}-
-
-      # Install MAUI workloads if cache miss
-      - name: Install MAUI workloads
-        if: steps.maui-cache.outputs.cache-hit != 'true'
-        run: dotnet workload install maui-android --skip-manifest-update
-        env:
-          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-          DOTNET_NOLOGO: true
 
       # Build all projects in parallel
       - name: Build all projects
