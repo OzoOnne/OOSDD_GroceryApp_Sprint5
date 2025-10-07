@@ -1,46 +1,43 @@
 name: MAUI Unit Tests
- 
+
 on:
   push:
-    branches:
-      - main
-      - dev
-      - release
+    branches: [main, dev, release]
   pull_request:
-    branches:
-      - main
-      - dev
-      - release
- 
+    branches: [main, dev, release]
+
 jobs:
   test:
-    runs-on: ubuntu-latest  # Of windows-latest/macOS-latest als specifiek platform nodig is
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Haal de repository op
+      - name: Checkout repository
         uses: actions/checkout@v4
- 
-      - name: Installeer .NET SDK
+
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'  # Gebruik de juiste versie voor MAUI
- 
-      - name: Installeer MAUI workloads
-        run: dotnet workload install maui-android
- 
-      - name: Herstel afhankelijkheden
+          dotnet-version: '8.0.x'
+          cache: true  
+
+      - name: Install MAUI workloads (cached)
+        run: |
+          dotnet workload install maui-android --skip-manifest-update
+        env:
+          DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+          DOTNET_NOLOGO: true
+
+      - name: Restore dependencies
         run: dotnet restore
- 
-      - name: Build libraries
-        run: dotnet build Grocery.Core.Data/Grocery.Core.Data.csproj -f net8.0 --configuration Release --no-restore
-      
-      - name: Build core
-        run: dotnet build Grocery.Core/Grocery.Core.csproj -f net8.0 --configuration Release --no-restore
-      
-      - name: Build tests
-        run: dotnet build TestCore/TestCore.csproj -f net8.0 --configuration Release --no-restore
-      
-      - name: Build app
-        run: dotnet build Grocery.App/Grocery.App.csproj -f net8.0-android --configuration Release --no-restore
-        
-      - name: Voer unit tests uit
-        run: dotnet test --configuration Release --verbosity normal
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      - name: Build all projects (parallel)
+        run: dotnet build --configuration Release --no-restore -m:4
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      - name: Run unit tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
