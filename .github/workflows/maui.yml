@@ -19,7 +19,13 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Cache NuGet packages
+      # Restore NuGet packages first
+      - name: Restore dependencies
+        run: dotnet restore
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      # Cache NuGet packages after restore
       - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
@@ -28,8 +34,9 @@ jobs:
           restore-keys: |
             nuget-${{ runner.os }}-
 
-      # Cache MAUI workloads
-      - name: Cache MAUI workloads
+      # Restore MAUI workloads if cached
+      - name: Restore MAUI workloads cache
+        id: maui-cache
         uses: actions/cache@v3
         with:
           path: ~/.dotnet/workloads
@@ -37,23 +44,21 @@ jobs:
           restore-keys: |
             maui-workloads-${{ runner.os }}-
 
-      - name: Install MAUI workloads (if cache miss)
-        run: |
-          dotnet workload install maui-android --skip-manifest-update
+      # Install MAUI workloads if cache miss
+      - name: Install MAUI workloads
+        if: steps.maui-cache.outputs.cache-hit != 'true'
+        run: dotnet workload install maui-android --skip-manifest-update
         env:
           DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
           DOTNET_NOLOGO: true
 
-      - name: Restore dependencies
-        run: dotnet restore
-        env:
-          DOTNET_CLI_TELEMETRY_OPTOUT: 1
-
-      - name: Build all projects (parallel)
+      # Build all projects in parallel
+      - name: Build all projects
         run: dotnet build --configuration Release --no-restore -m:4
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
+      # Run unit tests
       - name: Run unit tests
         run: dotnet test --configuration Release --no-build --verbosity normal
         env:
