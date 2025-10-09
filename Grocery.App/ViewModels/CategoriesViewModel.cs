@@ -22,6 +22,6 @@ public partial class CategoriesViewModel : BaseViewModel
     public async Task SelectCategoryList(Category category)
     {
         Dictionary<string, object> paramater = new() { { nameof(Category), category } };
-        await Shell.Current.GoToAsync($"{nameof(Views.ProductCategoriesView)}", true, paramater);
+        await Shell.Current.GoToAsync("ProductCategoriesView");
     }
 }
