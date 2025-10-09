@@ -8,8 +8,6 @@ public interface ICategoryRepository
     
     public Category? Delete(Category item);
     
-    public Category? Update(Category item);
-    
     public Category? GetById(int id);
     
     public List<Category>  GetAll();
