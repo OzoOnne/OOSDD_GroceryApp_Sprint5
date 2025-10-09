@@ -2,7 +2,7 @@ using Grocery.Core.Models;
 
 namespace Grocery.Core.Interfaces.Repositories;
 
-public interface IProductCategory
+public interface IProductCategoryRepository
 {
     public ProductCategory Add(Product product, Category category);
     
@@ -10,7 +10,7 @@ public interface IProductCategory
     
     public ProductCategory Update(Product product, Category category);
     
-    public List<ProductCategory> getAll();
+    public List<ProductCategory> GetAll();
     
-    public List<ProductCategory> getAllByCategoryId(int categoryId);
+    public List<ProductCategory> GetAllByCategoryId(int categoryId);
 }
