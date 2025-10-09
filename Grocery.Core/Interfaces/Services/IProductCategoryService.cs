@@ -4,7 +4,7 @@ namespace Grocery.Core.Interfaces.Services;
 
 public interface IProductCategoryService
 {
-    public ProductCategory Add(ProductCategory item);
+    public ProductCategory Add(Product product, Category category);
     
     public ProductCategory? GetById(int id);
     

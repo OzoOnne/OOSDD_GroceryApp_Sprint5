@@ -8,7 +8,6 @@ public interface IProductCategoryRepository
     
     public ProductCategory? GetById(int id);
     
-    
     public List<ProductCategory> GetAll();
     
     public List<ProductCategory> GetAllByCategoryId(int categoryId);
