@@ -8,7 +8,6 @@ public interface IProductCategoryRepository
     
     public ProductCategory? GetById(int id);
     
-    public ProductCategory Update(Product product, Category category);
     
     public List<ProductCategory> GetAll();
     
