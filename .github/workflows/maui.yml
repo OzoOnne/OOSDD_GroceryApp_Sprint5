@@ -19,7 +19,23 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install MAUI workloads (cached)
+      # Cache NuGet packages
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+      # Cache MAUI workloads
+      - name: Cache MAUI workloads
+        uses: actions/cache@v3
+        with:
+          path: ~/.dotnet/workloads
+          key: maui-workloads-${{ runner.os }}-${{ hashFiles('global.json') }}
+          restore-keys: |
+            maui-workloads-${{ runner.os }}-
+      - name: Install MAUI workloads (if cache miss)
         run: |
           dotnet workload install maui-android --skip-manifest-update
         env:
